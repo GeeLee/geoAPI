@@ -23,7 +23,7 @@ exports.postGeoData = function(req, res) {
 // Create endpoint /api/geoDataAll for GET
 exports.getGeoDataAll = function(req, res) {
   // Use the geoData model to find all geoData - s
-  geoData.find(function(err, datas) {
+  geoData.find({ userId: req.user._id }, function(err, datas) {
     if (err)
       res.send(err);
 
