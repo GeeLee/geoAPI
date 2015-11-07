@@ -1,0 +1,12 @@
+{
+  "name": "geoAPI",
+  "main": "server.js",
+  "dependencies": {
+    "bcrypt-nodejs": "0.0.3",
+    "body-parser": "^1.14.1",
+    "express": "~4.1.1",
+    "mongoose": "^4.2.4",
+    "passport": "^0.3.0",
+    "passport-http": "^0.3.0"
+  }
+}
