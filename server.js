@@ -10,6 +10,7 @@ var clientController = require('./controllers/client');
 var ejs = require('ejs');
 var session = require('express-session');
 var oauth2Controller = require('./controllers/oauth2');
+var compression = require('compression');
 
 
 // Connect to the geoAPI MongoDB
@@ -17,6 +18,14 @@ mongoose.connect('mongodb://localhost:27017/geoData');
 
 // Create our Express application
 var app = express();
+
+// Add content compression middleware
+app.use(compression({
+  threshold: 256
+}));
+
+// Add static middleware
+app.use(express.static(__dirname + '/public'));
 
 // Set view engine to ejs
 app.set('view engine', 'ejs');
