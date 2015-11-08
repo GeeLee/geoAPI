@@ -1,4 +1,5 @@
 // Get the packages we need
+var path = require('path');
 var express = require('express');
 var mongoose = require('mongoose');
 var bodyParser = require('body-parser');
@@ -11,10 +12,10 @@ var ejs = require('ejs');
 var session = require('express-session');
 var oauth2Controller = require('./controllers/oauth2');
 var compression = require('compression');
-
+var secrets = require('./config/secrets');
 
 // Connect to the geoAPI MongoDB
-mongoose.connect('mongodb://localhost:27017/geoData');
+mongoose.connect(secrets.db);
 
 // Create our Express application
 var app = express();
@@ -23,6 +24,12 @@ var app = express();
 app.use(compression({
   threshold: 256
 }));
+
+// Setup objects needed by views
+app.use(function(req, res, next) {
+  res.locals.user = req.user;
+  next();
+});
 
 // Add static middleware
 app.use(express.static(__dirname + '/public'));
@@ -37,13 +44,14 @@ app.use(bodyParser.urlencoded({
 
 // Use express session support since OAuth2orize requires it
 app.use(session({
-  secret: 'Super Secret Session Key',
+  secret: secrets.sessionSecret,
   saveUninitialized: true,
   resave: true
 }));
 
 // Use the passport package in our application
 app.use(passport.initialize());
+app.use(passport.session());
 
 // Create our Express router
 var router = express.Router();
@@ -78,6 +86,12 @@ router.route('/oauth2/authorize')
 router.route('/oauth2/token')
   .post(authController.isClientAuthenticated, oauth2Controller.token);
   
+// Auth routes
+router.get('/auth/twitter', authController.twitter);
+router.get('/auth/twitter/callback', authController.twitterCallback, function(req, res) {
+  res.redirect(req.session.returnTo || '/');});
+
+router.get('/auth/logout', authController.logout);
 
 // Register all our routes with /api
 app.use('/api', router);
